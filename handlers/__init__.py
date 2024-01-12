@@ -1,11 +1,10 @@
 __all__ = [
-    'users_converset'
+    'handlers'
 ]
 
 
-from telegram import Update
 from telegram.ext import (
-    CallbackContext, CommandHandler, filters, CallbackQueryHandler,
+    CommandHandler, filters, CallbackQueryHandler,
     ConversationHandler, MessageHandler,
 )
 
@@ -13,8 +12,18 @@ from .users import (
     CONTACT, LOCATION, FMO_TYPING, callback_update_profile,
     get_contact, get_fmo, get_location, start, stop
 )
+from .products import (
+    CATEGORY, NAME, COUNT, PACKING, MIN_PART,
+    MEDIA, PRICE_PER, SHIPMENT, VALIDITY, PER_PACKING,
+    DESCRIPTION, LOCATION_PRODUCT, MESSANGER,
+    callback_add_product, get_count, get_media, 
+    get_min_part, get_name, get_packing, get_per_packing,
+    get_price_per, get_shipment, callback_get_category
+)
 
-users_converset = ConversationHandler(
+
+handlers = [
+    ConversationHandler(
     entry_points=[
         CommandHandler(['start'], callback=start), CallbackQueryHandler(callback_update_profile, pattern='change_profile'),
     ],
@@ -25,4 +34,22 @@ users_converset = ConversationHandler(
     },
     fallbacks=[MessageHandler(filters.Text(['stop']), callback=stop)],
     per_message=False
-)
+    ),
+    ConversationHandler(
+        entry_points=[
+            CallbackQueryHandler(callback_add_product, pattern='add_product'),
+        ],
+        states= {
+            CATEGORY: [CallbackQueryHandler(callback_get_category)],
+            NAME: [MessageHandler(filters.TEXT, callback=get_name)],
+            COUNT: [MessageHandler(filters.TEXT, callback=get_count)],
+            PACKING: [MessageHandler(filters.TEXT, callback=get_packing)],
+            PER_PACKING: [MessageHandler(filters.TEXT, callback=get_per_packing)],
+            MIN_PART: [MessageHandler(filters.TEXT, callback=get_min_part)],
+            MEDIA: [MessageHandler((filters.PHOTO | filters.VIDEO), callback=get_media)],
+            PRICE_PER: [MessageHandler(filters.TEXT, callback=get_price_per)],
+            SHIPMENT: [MessageHandler(filters.TEXT, callback=get_shipment)],
+        },
+        fallbacks=[MessageHandler(filters.TEXT, callback=get_shipment),]
+    )
+]
