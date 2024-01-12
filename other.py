@@ -19,6 +19,7 @@ def inline_button_helps() -> InlineKeyboardMarkup:
         [
             [
                 InlineKeyboardButton('Изменить профиль', callback_data='change_profile'),
+                InlineKeyboardButton('Изменить локацию', callback_data='change_location')
             ],
             [
                 InlineKeyboardButton('Добавить товар', callback_data='add_product'),

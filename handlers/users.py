@@ -34,7 +34,9 @@ async def get_fmo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         chat_id=update.effective_chat.id,
         text='Поделитесь своим контактом',
         reply_markup=ReplyKeyboardMarkup(
-            [[KeyboardButton('Отправить контакт', request_contact=True)]], 
+            [
+                [KeyboardButton('Отправить контакт', request_contact=True)],
+            ], 
             resize_keyboard=True, 
             one_time_keyboard=True
         )
@@ -46,9 +48,12 @@ async def get_contact(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
     context.user_data['contact'] = update.message.contact
     await context.bot.send_message(
         chat_id=update.effective_chat.id,
-        text='Отлично\nТеперь отправьте свою локацию',
+        text='Отлично\nТеперь отправьте свою локацию(Если сами хотите)',
         reply_markup=ReplyKeyboardMarkup(
-            [[KeyboardButton('Отправить локацию', request_location=True)]], 
+            [
+                [KeyboardButton('Отправить локацию', request_location=True)],
+                [KeyboardButton('Пропустить')],
+            ], 
             resize_keyboard=True, 
             one_time_keyboard=True
         )
@@ -78,5 +83,50 @@ async def callback_update_profile(update: Update, _: CallbackContext) -> int:
     return FMO_TYPING
 
 
-async def stop(update: Update, _: ContextTypes.DEFAULT_TYPE) -> int:
+async def callback_update_location(update: Update, _: CallbackContext) -> int:
+    await update.callback_query.answer()
+    await update.callback_query.delete_message()
+    await _.bot.send_message(
+        text='Пришлите нам локацию', 
+        chat_id=update.effective_chat.id,
+        reply_markup=ReplyKeyboardMarkup(
+            [
+                [KeyboardButton('Скинуть локацию', request_location=True), KeyboardButton('Отмена')]
+            ],
+            resize_keyboard=True,
+            one_time_keyboard=True
+        )
+    )
+    return LOCATION
+
+
+async def only_location(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    context.user_data['location'] = update.message.location
+    await context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text='Вы успешно изменили локацию!'
+    )
+    await context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text='Чем могу помочь Вам?',
+        reply_markup=inline_button_helps(),
+    )
+    return ConversationHandler.END
+
+
+async def skip_location(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    context.user_data['location'] = None
+    await context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text='Чем могу помочь Вам?',
+        reply_markup=inline_button_helps(),
+    )
+    return ConversationHandler.END
+
+
+async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    await context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text='Вы отменили обновление пользователя',
+    )
     return ConversationHandler.END

@@ -10,7 +10,8 @@ from telegram.ext import (
 
 from .users import (
     CONTACT, LOCATION, FMO_TYPING, callback_update_profile,
-    get_contact, get_fmo, get_location, start, stop
+    get_contact, get_fmo, get_location, start, cancel, skip_location,
+    callback_update_location, only_location
 )
 from .products import (
     CATEGORY, NAME, COUNT, PACKING, MIN_PART,
@@ -30,11 +31,20 @@ handlers = [
     states={
         FMO_TYPING: [MessageHandler(filters.ALL, callback=get_fmo)],
         CONTACT: [MessageHandler(filters.CONTACT, callback=get_contact)],
-        LOCATION: [MessageHandler(filters.LOCATION, callback=get_location)],
+        LOCATION: [MessageHandler(filters.LOCATION, callback=get_location), MessageHandler(filters.Text(['Пропустить']), skip_location)],
     },
-    fallbacks=[MessageHandler(filters.Text(['stop']), callback=stop)],
+    fallbacks=[MessageHandler(filters.Text(['stop']), callback=cancel)],
     per_message=False
     ),
+    ConversationHandler(
+        entry_points=[CallbackQueryHandler(callback_update_location, pattern='change_location')],
+        states={
+            LOCATION: [MessageHandler(filters.LOCATION, callback=only_location), MessageHandler(filters.Text(['Отмена']), skip_location)]
+        },
+        fallbacks=[MessageHandler(filters.Text('stop'), callback=cancel)],
+    ),
+    CallbackQueryHandler(callback_update_location, pattern='change_location'),
+    MessageHandler(filters.Text(['Отмена']), skip_location),
     ConversationHandler(
         entry_points=[
             CallbackQueryHandler(callback_add_product, pattern='add_product'),
