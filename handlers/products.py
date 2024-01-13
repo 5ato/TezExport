@@ -1,5 +1,8 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import CallbackContext, ContextTypes, ConversationHandler
+from telegram.ext import (
+    CallbackContext, ContextTypes, ConversationHandler,
+    MessageHandler, CallbackQueryHandler, filters
+)
 
 from enum import Enum
 
@@ -117,3 +120,24 @@ async def get_shipment(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
     print(context.user_data['product'])
     print(context.user_data)
     return ConversationHandler.END
+
+
+product_handlers = [
+    ConversationHandler(
+        entry_points=[
+            CallbackQueryHandler(callback_add_product, pattern='add_product'),
+        ],
+        states= {
+            CATEGORY: [CallbackQueryHandler(callback_get_category)],
+            NAME: [MessageHandler(filters.TEXT, callback=get_name)],
+            COUNT: [MessageHandler(filters.TEXT, callback=get_count)],
+            PACKING: [MessageHandler(filters.TEXT, callback=get_packing)],
+            PER_PACKING: [MessageHandler(filters.TEXT, callback=get_per_packing)],
+            MIN_PART: [MessageHandler(filters.TEXT, callback=get_min_part)],
+            MEDIA: [MessageHandler((filters.PHOTO | filters.VIDEO), callback=get_media)],
+            PRICE_PER: [MessageHandler(filters.TEXT, callback=get_price_per)],
+            SHIPMENT: [MessageHandler(filters.TEXT, callback=get_shipment)],
+        },
+        fallbacks=[MessageHandler(filters.TEXT, callback=get_shipment),]
+    )
+]

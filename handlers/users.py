@@ -2,7 +2,9 @@ from telegram import (
     Update, ReplyKeyboardMarkup, KeyboardButton
 )
 from telegram.ext import (
-    ContextTypes, ConversationHandler, CallbackContext
+    ContextTypes, ConversationHandler, CallbackContext,
+    CommandHandler, MessageHandler, CallbackQueryHandler,
+    filters,
 )
 from other import validate_fmo, inline_button_helps
 
@@ -130,3 +132,26 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         text='Вы отменили обновление пользователя',
     )
     return ConversationHandler.END
+
+
+user_handlers = [
+    ConversationHandler(
+    entry_points=[
+        CommandHandler(['start'], callback=start), CallbackQueryHandler(callback_update_profile, pattern='change_profile'),
+    ],
+    states={
+        FMO_TYPING: [MessageHandler(filters.ALL, callback=get_fmo)],
+        CONTACT: [MessageHandler(filters.CONTACT, callback=get_contact)],
+        LOCATION: [MessageHandler(filters.LOCATION, callback=get_location), MessageHandler(filters.Text(['Пропустить']), skip_location)],
+    },
+    fallbacks=[MessageHandler(filters.Text(['stop']), callback=cancel)],
+    per_message=False
+    ),
+    ConversationHandler(
+        entry_points=[CallbackQueryHandler(callback_update_location, pattern='change_location')],
+        states={
+            LOCATION: [MessageHandler(filters.LOCATION, callback=only_location), MessageHandler(filters.Text(['Отмена']), skip_location)]
+        },
+        fallbacks=[MessageHandler(filters.Text('stop'), callback=cancel)],
+    ),
+]
