@@ -15,7 +15,7 @@ FMO_TYPING, CONTACT, LOCATION = range(3)
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     reply_text = 'Здравствуйте, '
     if context.user_data: reply_text += 'Как я вижу, вы уже зарегистрированы, чем могу помочь?'
-    else: reply_text += 'Сначало нужно пройти регистрацию\nКак вас зовут? Фамилия, имя и отчество введите через пробел'
+    else: reply_text += 'Сначало нужно пройти регистрацию\nКак вас зовут?\n<b><em>Фамилия, имя и отчество введите через пробел</em></b>'
     await context.bot.send_message(
             chat_id=update.effective_chat.id,
             text=reply_text,
@@ -53,8 +53,7 @@ async def get_contact(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
         text='Отлично\nТеперь отправьте свою локацию(Если сами хотите)',
         reply_markup=ReplyKeyboardMarkup(
             [
-                [KeyboardButton('Отправить локацию', request_location=True)],
-                [KeyboardButton('Пропустить')],
+                [KeyboardButton('Отправить локацию', request_location=True), KeyboardButton('Пропустить')],
             ], 
             resize_keyboard=True, 
             one_time_keyboard=True
@@ -80,7 +79,7 @@ async def get_location(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
 async def callback_update_profile(update: Update, _: CallbackContext) -> int:
     await update.callback_query.answer()
     await update.callback_query.edit_message_text(
-        text='Введите ваше ФИО. Фамилия, имя и отчество введите через пробел'
+        text='Введите ваше ФИО.\n<b><em>Фамилия, имя и отчество введите через пробел</em></b>'
     )
     return FMO_TYPING
 
@@ -131,6 +130,11 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         chat_id=update.effective_chat.id,
         text='Вы отменили обновление пользователя',
     )
+    await context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text='Чем могу помочь Вам?',
+        reply_markup=inline_button_helps(),
+    )
     return ConversationHandler.END
 
 
@@ -140,9 +144,12 @@ user_handlers = [
         CommandHandler(['start'], callback=start), CallbackQueryHandler(callback_update_profile, pattern='change_profile'),
     ],
     states={
-        FMO_TYPING: [MessageHandler(filters.ALL, callback=get_fmo)],
-        CONTACT: [MessageHandler(filters.CONTACT, callback=get_contact)],
-        LOCATION: [MessageHandler(filters.LOCATION, callback=get_location), MessageHandler(filters.Text(['Пропустить']), skip_location)],
+        FMO_TYPING: [MessageHandler(filters.TEXT, callback=get_fmo)],
+        CONTACT: [MessageHandler(filters.CONTACT & (~ filters.FORWARDED), callback=get_contact)],
+        LOCATION: [
+            MessageHandler((filters.LOCATION & (~ filters.FORWARDED)), callback=get_location), 
+            MessageHandler(filters.Text(['Пропустить']), skip_location)
+        ],
     },
     fallbacks=[MessageHandler(filters.Text(['stop']), callback=cancel)],
     per_message=False
@@ -150,7 +157,7 @@ user_handlers = [
     ConversationHandler(
         entry_points=[CallbackQueryHandler(callback_update_location, pattern='change_location')],
         states={
-            LOCATION: [MessageHandler(filters.LOCATION, callback=only_location), MessageHandler(filters.Text(['Отмена']), skip_location)]
+            LOCATION: [MessageHandler((filters.LOCATION & (~ filters.FORWARDED)), callback=only_location), MessageHandler(filters.Text(['Отмена']), skip_location)]
         },
         fallbacks=[MessageHandler(filters.Text('stop'), callback=cancel)],
     ),
