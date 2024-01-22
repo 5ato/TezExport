@@ -14,6 +14,9 @@ class DatabaseConfig:
     DBUSER: str = field(default=getenv('DBUSER'))
     DBPORT: str = field(default=getenv('DBPORT'))
     DBSERVER: str = field(default=getenv('DBSERVER'))
+    
+    def full_name(self) -> str:
+        return f'postgresql+psycopg2://{self.DBUSER}:{self.DBPASSWORD}@{self.DBSERVER}:{self.DBPORT}/{self.DBNAME}'
 
 
 @dataclass
