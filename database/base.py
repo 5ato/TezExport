@@ -9,6 +9,9 @@ class Base(DeclarativeBase):
     __abstract__ = True
     
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 
 def get_sessionmaker(engine: Engine) -> sessionmaker:

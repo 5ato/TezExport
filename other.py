@@ -66,6 +66,15 @@ async def proccess_calendar(update: Update, context: ContextTypes.DEFAULT_TYPE, 
         )
 
 
+def get_inline_list_offers(context: ContextTypes.DEFAULT_TYPE, per_row: int = 3):
+    count, result = 0, []
+    for key, item in enumerate(context.user_data['list_offers']):
+        if count % per_row == 0: result.append([InlineKeyboardButton(text=item.good.goods_name, callback_data=str(key))])
+        else: result[-1].append(InlineKeyboardButton(text=item.good.goods_name, callback_data=str(key)))
+        count += 1
+    return InlineKeyboardMarkup(result)
+
+
 def get_inline_name_product(product: list[Good], context: ContextTypes.DEFAULT_TYPE, per_row: int = 3) -> InlineKeyboardMarkup:
     count, result = 0, []
     context.user_data['inline']['goods'] = product
@@ -97,17 +106,12 @@ def get_inline_repeat() -> InlineKeyboardMarkup:
     )
 
 
-error_symbol = '.,/\'":[]{}()*%$#@!?&^`~'
- 
-
-def validate_name(value: list[str]) -> bool:
-    if 2 > len(value) < 3:
+def validate_phone(phone: str) -> bool:
+    if len(phone) not in (9, 10):
         return False
-    for i in value:
-        for j in error_symbol:
-            if j in i: return False
-        if not i.isalpha(): return False
-    return True
+    if not phone.isdigit():
+        return False
+    return '+' + phone if phone[0] != '+' else phone
 
 
 def convert_join_to_dict(data) -> dict[str, list[str]]:
@@ -139,6 +143,20 @@ class DateFilter(MessageFilter):
         return all(i.isdigit() for i in message.text.split())
 
 
+def get_inline_updel(id: int) -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        [
+            [
+                InlineKeyboardButton('Обнововить', callback_data=f'update:{id}'),
+                InlineKeyboardButton('Удалить', callback_data=f'delete:{id}'),
+            ],
+            [
+                InlineKeyboardButton('Пропустить', callback_data='skip:-1'),
+            ],
+        ]
+    )
+
+
 def inline_button_helps() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         [
@@ -151,6 +169,9 @@ def inline_button_helps() -> InlineKeyboardMarkup:
             ],
             [
                 InlineKeyboardButton('Список товаров', callback_data='list_product')
+            ],
+            [
+                InlineKeyboardButton('Ссылка на Наш сайт', url='https://tezexport.uz/')
             ]
         ]
     )

@@ -7,7 +7,7 @@ from telegram.ext import (
     filters,
 )
 
-from other import validate_name, inline_button_helps
+from other import inline_button_helps, validate_phone
 
 
 NAME_TYPING, CONTACT, ADDRESS, LOCATION = range(4)
@@ -31,27 +31,29 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
 
 async def get_name(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    name = validate_name(update.message.text.split())
-    if not name:
-        await context.bot.send_message(
-            chat_id=update.effective_chat.id,
-            text='Вы ввели некорректные данные\nПовторите написать свою фамилию, имя и отчество'
-        )
-        return NAME_TYPING
     reply_keyboard = [[KeyboardButton('Отправить контакт', request_contact=True)]]
     if context.user_data.get('update'):
         reply_keyboard.append([KeyboardButton('Отмена')])
     context.user_data['fermer']['name'] = update.message.text.capitalize()
     await context.bot.send_message(
         chat_id=update.effective_chat.id,
-        text='Поделитесь своим контактом',
+        text='Поделитесь своим контактом<b>(поделитесь контаком или напишите номер телефона без пробелов и других символов)</b>',
         reply_markup=ReplyKeyboardMarkup(reply_keyboard, resize_keyboard=True, one_time_keyboard=True)
     )
     return CONTACT
 
 
 async def get_contact(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    context.user_data['fermer']['phone'] = update.message.contact.phone_number
+    if update.message.contact: context.user_data['fermer']['phone'] = update.message.contact.phone_number
+    else:
+        phone = validate_phone(update.effective_message.text)
+        if phone: context.user_data['fermer']['phone'] = phone
+        else: 
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text='Вы ввели некорректный номер'
+            )
+            return CONTACT
     context.user_data['fermer']['username'] = update.effective_user.username
     context.user_data['fermer']['isactive'] = True
     print(context.user_data)
@@ -68,7 +70,7 @@ async def get_contact(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
 
 async def get_address(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     context.user_data['fermer']['address'] = update.effective_message.text
-    reply_keyboard = [[KeyboardButton('Скинуть локацию', request_location=True), KeyboardButton('Пропустить')]]
+    reply_keyboard = [[KeyboardButton('Дать локацию', request_location=True), KeyboardButton('Пропустить')]]
     if context.user_data.get('update'):
         reply_keyboard.append([KeyboardButton('Отмена')])
     await context.bot.send_message(
@@ -114,7 +116,7 @@ async def callback_update_location(update: Update, context: ContextTypes.DEFAULT
         chat_id=update.effective_chat.id,
         reply_markup=ReplyKeyboardMarkup(
             [
-                [KeyboardButton('Скинуть локацию', request_location=True), KeyboardButton('Отмена')]
+                [KeyboardButton('Дать локацию', request_location=True), KeyboardButton('Отмена')]
             ],
             resize_keyboard=True,
             one_time_keyboard=True
@@ -151,6 +153,15 @@ async def skip_location(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     return ConversationHandler.END
 
 
+async def cancel_location(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    await context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text='<b>Вы отменили изменение локации</b>\n\nЧем могу помочь Вам?',
+        reply_markup=inline_button_helps(),
+    )
+    return ConversationHandler.END
+
+
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     del context.user_data['fermer']
     await context.bot.send_message(
@@ -168,7 +179,11 @@ user_handlers = [
     ],
     states={
         NAME_TYPING: [MessageHandler(filters.Text(['Отмена']), callback=cancel), MessageHandler(filters.TEXT, callback=get_name)],
-        CONTACT: [MessageHandler(filters.Text(['Отмена']), callback=cancel), MessageHandler(filters.CONTACT, callback=get_contact)],
+        CONTACT: [
+            MessageHandler(filters.Text(['Отмена']), callback=cancel),
+            MessageHandler(filters.TEXT, callback=get_contact),
+            MessageHandler(filters.CONTACT, callback=get_contact), 
+        ],
         ADDRESS: [MessageHandler(filters.Text(['Отмена']), callback=cancel), MessageHandler(filters.TEXT, callback=get_address)],
         LOCATION: [
             MessageHandler((filters.LOCATION & (~ filters.FORWARDED)), callback=get_location), 
@@ -182,7 +197,10 @@ user_handlers = [
     ConversationHandler(
         entry_points=[CallbackQueryHandler(callback_update_location, pattern='change_location')],
         states={
-            LOCATION: [MessageHandler((filters.LOCATION), callback=only_location), MessageHandler(filters.Text(['Отмена']), skip_location)]
+            LOCATION: [
+                MessageHandler((filters.LOCATION), callback=only_location), 
+                MessageHandler(filters.Text(['Отмена']), cancel_location),
+            ]
         },
         fallbacks=[MessageHandler(filters.Text('Отмена'), callback=cancel)],
     ),
