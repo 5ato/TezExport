@@ -103,7 +103,34 @@ def get_inline_list_offers(context: ContextTypes.DEFAULT_TYPE, per_row: int = 3)
     return InlineKeyboardMarkup(result)
 
 
-def get_inline_name_product(product: list[Good], context: ContextTypes.DEFAULT_TYPE, per_row: int = 3) -> InlineKeyboardMarkup:
+async def proccess_name_product(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    data = update.callback_query.data
+    print(context.user_data['name_index'])
+    await update.callback_query.answer()
+    if data == 'PREV':
+        if context.user_data['name_index'] > 0:
+            context.user_data['name_index'] -= 1
+            await update.callback_query.edit_message_reply_markup(
+                reply_markup=get_inline_name_full_product(context.user_data['inline_buttons'][context.user_data['name_index']])
+            )
+    elif data == 'NEXT':
+        if context.user_data['name_index'] < len(context.user_data['inline_buttons'])-1:
+            context.user_data['name_index'] += 1
+            await update.callback_query.edit_message_reply_markup(
+                reply_markup=get_inline_name_full_product(context.user_data['inline_buttons'][context.user_data['name_index']])
+            )
+    else:
+        return update.callback_query.data
+      
+
+def get_inline_name_full_product(result: list[Good]):
+    if [InlineKeyboardButton('Назад', callback_data='back')] not in result:
+        result.append([InlineKeyboardButton('<<<', callback_data='PREV'), InlineKeyboardButton('>>', callback_data='NEXT')])
+        result.append([InlineKeyboardButton('Назад', callback_data='back')])
+    return InlineKeyboardMarkup(result)
+
+
+def get_inline_name_product(product: list[Good], context: ContextTypes.DEFAULT_TYPE, per_row: int = 3, one_time: int = 15) -> list[list[InlineKeyboardButton]]:
     """Generate list of goods name in inline keyboard
 
     Args:
@@ -114,14 +141,19 @@ def get_inline_name_product(product: list[Good], context: ContextTypes.DEFAULT_T
     Returns:
         InlineKeyboardMarkup: Inline keyboard
     """
-    count, result = 0, []
+    count_per_row, count_one_time, result = 0, 0, []
     context.user_data['inline']['goods'] = product
     for key, item in enumerate(product):
-        if count % per_row == 0: result.append([InlineKeyboardButton(text=item.goods_name, callback_data=str(key))])
-        else: result[-1].append(InlineKeyboardButton(text=item.goods_name, callback_data=str(key)))
-        count += 1
-    result.append([InlineKeyboardButton('Назад', callback_data='back')])
-    return InlineKeyboardMarkup(result)
+        if count_one_time % one_time == 0:
+            if count_per_row % per_row == 0: result.append([[InlineKeyboardButton(text=item.goods_name, callback_data=str(key))]])
+            else: result[-1].append(InlineKeyboardButton(text=item.goods_name, callback_data=str(key)))
+            count_per_row += 1
+        else:
+            if count_per_row % per_row == 0: result[-1].append([InlineKeyboardButton(text=item.goods_name, callback_data=str(key))])
+            else: result[-1][-1].append(InlineKeyboardButton(text=item.goods_name, callback_data=str(key)))
+            count_per_row += 1
+        count_one_time += 1
+    return result
 
 
 def get_inline_category(context: ContextTypes.DEFAULT_TYPE, category_service: CategoryService, per_row: int = 3) -> InlineKeyboardMarkup:

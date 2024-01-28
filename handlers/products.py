@@ -1,4 +1,4 @@
-from telegram import Update, KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
+from telegram import Update, KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove, InlineKeyboardMarkup
 from telegram.ext import (
     ContextTypes, ConversationHandler,
     MessageHandler, CallbackQueryHandler, filters
@@ -8,7 +8,8 @@ from telegram.error import BadRequest
 from other import (
     inline_button_helps, FloatFilter, get_inline_name_product, 
     get_inline_category, get_inline_repeat, create_calendar, 
-    proccess_calendar, get_inline_list_offers, get_inline_updel
+    proccess_calendar, get_inline_list_offers, get_inline_updel,
+    get_inline_name_full_product, proccess_name_product,
 )
 
 from datetime import date
@@ -44,19 +45,23 @@ async def callback_get_category(update: Update, context: ContextTypes.DEFAULT_TY
     data = int(update.callback_query.data)
     context.user_data['product']['category'] = context.user_data['inline']['category'][data].goods_categories_name
     context.user_data['product']['category_id'] = context.user_data['inline']['category'][data].id
-    product_name = context.user_data['inline']['category'][data].goods
+    context.user_data['inline_buttons'] = get_inline_name_product(context.user_data['inline']['category'][data].goods, context, 3, 9)
+    context.user_data['name_index'] = 0
     reply_text = f'<b>Категория: {context.user_data["product"]["category"]}</b>\n\nНапишите наименование вашего продукта или выберите из списка'
     if context.user_data.get('over', None):
         reply_text += f'\n\n<em>Прошлое: {context.user_data["product"]["name"]}</em>'
     await update.callback_query.answer()
     await update.callback_query.edit_message_text(
         text=reply_text,
-        reply_markup=get_inline_name_product(product_name, context, 4),
+        reply_markup=get_inline_name_full_product(context.user_data['inline_buttons'][context.user_data['name_index']]),
     )
     return NAME
 
 
 async def callback_get_name(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    data = await proccess_name_product(update, context)
+    if not data:
+        return NAME
     data = int(update.callback_query.data)
     context.user_data['product']['goods_id'] = context.user_data['inline']['goods'][data].id
     context.user_data['product']['name'] = context.user_data['inline']['goods'][data].goods_name
@@ -283,7 +288,7 @@ async def callback_yes(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         context.bot_data['offer_service'].create(context.user_data['product'])
     context.user_data['over'] = False
-    del context.user_data['product'], context.user_data['inline']
+    del context.user_data['product'], context.user_data['inline'], context.user_data['inline_buttons'], context.user_data['name_index']
     await context.bot.send_message(
         chat_id=update.effective_chat.id,
         text='<b>Вы успешно добавили свой продукт</b>\n\nЧем могу помочь?',
