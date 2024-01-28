@@ -37,7 +37,7 @@ async def get_name(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     context.user_data['fermer']['name'] = update.message.text.capitalize()
     await context.bot.send_message(
         chat_id=update.effective_chat.id,
-        text='Поделитесь своим контактом<b>(поделитесь контаком или напишите номер телефона без пробелов и других символов)</b>',
+        text='Поделитесь своим контактом<b>(поделитесь контаком или напишите номер телефона без кода страны, пробелов и других символов)</b>',
         reply_markup=ReplyKeyboardMarkup(reply_keyboard, resize_keyboard=True, one_time_keyboard=True)
     )
     return CONTACT
@@ -51,7 +51,7 @@ async def get_contact(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
         else: 
             await context.bot.send_message(
                 chat_id=update.effective_chat.id,
-                text='Вы ввели некорректный номер'
+                text='Вы ввели некорректный номер(Пример: 901234567)'
             )
             return CONTACT
     context.user_data['fermer']['username'] = update.effective_user.username
