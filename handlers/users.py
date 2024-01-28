@@ -1,5 +1,5 @@
 from telegram import (
-    Update, ReplyKeyboardMarkup, KeyboardButton
+    Update, ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
 )
 from telegram.ext import (
     ContextTypes, ConversationHandler,
@@ -83,6 +83,7 @@ async def get_address(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
 
 async def get_location(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     context.user_data['fermer']['location'] = f'lat={update.message.location.latitude} long={update.message.location.longitude}'
+    update.effective_message.edit_reply_markup(reply_markup=ReplyKeyboardRemove(True))
     await context.bot.send_message(
         chat_id=update.effective_chat.id,
         text='<b>Вы успешно зарегистрировались!</b>\n\nЧем могу помочь Вам?',

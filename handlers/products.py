@@ -303,13 +303,20 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
 async def callback_list_product(update: Update, context: ContextTypes.DEFAULT_TYPE):
     data = context.bot_data['offer_service'].get_list_from_user(update.effective_user.id)
-    context.user_data['list_offers'] = data
     await update.callback_query.answer()
     await update.callback_query.delete_message()
-    await context.bot.send_message(
+    if data:
+        context.user_data['list_offers'] = data
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text='Выберите код одного из Ваших товаров',
+            reply_markup=get_inline_list_offers(context)
+        )
+    else:
+        await context.bot.send_message(
         chat_id=update.effective_chat.id,
-        text='Выберите код одного из Ваших товаров',
-        reply_markup=get_inline_list_offers(context)
+        text='<b>Вы ещё не добавили не одного товар</b>\n\nЧем могу помочь?',
+        reply_markup=inline_button_helps()
     )
 
 
