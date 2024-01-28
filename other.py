@@ -208,7 +208,7 @@ def get_inline_updel(id: int) -> InlineKeyboardMarkup:
                 InlineKeyboardButton('Удалить', callback_data=f'delete:{id}'),
             ],
             [
-                InlineKeyboardButton('Пропустить', callback_data='skip:-1'),
+                InlineKeyboardButton('Назад в меню', callback_data='skip:-1'),
             ],
         ]
     )
@@ -233,7 +233,7 @@ def inline_button_helps() -> InlineKeyboardMarkup:
                 InlineKeyboardButton('Список товаров', callback_data='list_product')
             ],
             [
-                InlineKeyboardButton('Ссылка на Наш сайт', url='https://tezexport.uz/')
+                InlineKeyboardButton('Наш сайт', url='https://tezexport.uz/')
             ]
         ]
     )

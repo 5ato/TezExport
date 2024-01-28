@@ -73,21 +73,25 @@ async def get_address(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
     reply_keyboard = [[KeyboardButton('Дать локацию', request_location=True), KeyboardButton('Пропустить')]]
     if context.user_data.get('update'):
         reply_keyboard.append([KeyboardButton('Отмена')])
-    await context.bot.send_message(
+    print(await context.bot.send_message(
         chat_id=update.effective_chat.id,
         text='Отлично\nТеперь отправьте свою локацию <em>(По желанию)</em>',
         reply_markup=ReplyKeyboardMarkup(reply_keyboard, resize_keyboard=True, one_time_keyboard=True)
-    )
+    ))
     return LOCATION
 
 
 async def get_location(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     context.user_data['fermer']['location'] = f'lat={update.message.location.latitude} long={update.message.location.longitude}'
-    update.effective_message.edit_reply_markup(reply_markup=ReplyKeyboardRemove(True))
     await context.bot.send_message(
         chat_id=update.effective_chat.id,
-        text='<b>Вы успешно зарегистрировались!</b>\n\nЧем могу помочь Вам?',
-        reply_markup=inline_button_helps(),
+        text='<b>Вы успешно зарегистрировались!</b>',
+        reply_markup=ReplyKeyboardRemove(True),
+    )
+    await context.bot.send_message(
+        chat_id=update.effective_chat.id, 
+        text='Чем могу помочь Вам?', 
+        reply_markup=inline_button_helps()
     )
     if context.user_data.get('update', None): context.bot_data['fermer_service'].update(update.effective_user.id, context.user_data['fermer'])
     else: context.bot_data['fermer_service'].create(context.user_data['fermer'])
@@ -130,8 +134,13 @@ async def only_location(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     data = f'lat={update.message.location.latitude} long={update.message.location.longitude}'
     await context.bot.send_message(
         chat_id=update.effective_chat.id,
-        text='<b>Вы успешно изменили локацию!</b>\n\nЧем могу помочь Вам?',
-        reply_markup=inline_button_helps(),
+        text='<b>Вы успешно изменили локацию!</b>',
+        reply_markup=ReplyKeyboardRemove(True),
+    )
+    await context.bot.send_message(
+        chat_id=update.effective_chat.id, 
+        text='Чем могу помочь Вам?', 
+        reply_markup=inline_button_helps()
     )
     context.bot_data['fermer_service'].update(
         update.effective_user.id, 
@@ -145,8 +154,13 @@ async def only_location(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
 async def skip_location(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     await context.bot.send_message(
         chat_id=update.effective_chat.id,
-        text='<b>Вы успешно зарегистрировались!</b>\n\nЧем могу помочь Вам?',
-        reply_markup=inline_button_helps(),
+        text='<b>Вы успешно обноваили данные!</b>',
+        reply_markup=ReplyKeyboardRemove(True),
+    )
+    await context.bot.send_message(
+        chat_id=update.effective_chat.id, 
+        text='Чем могу помочь Вам?', 
+        reply_markup=inline_button_helps()
     )
     if context.user_data.get('update', None): context.bot_data['fermer_service'].update(update.effective_user.id, context.user_data['fermer'])
     else: context.bot_data['fermer_service'].create(context.user_data['fermer'])
@@ -157,8 +171,13 @@ async def skip_location(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
 async def cancel_location(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     await context.bot.send_message(
         chat_id=update.effective_chat.id,
-        text='<b>Вы отменили изменение локации</b>\n\nЧем могу помочь Вам?',
-        reply_markup=inline_button_helps(),
+        text='<b>Вы отменили изменение локации</b>',
+        reply_markup=ReplyKeyboardRemove(True),
+    )
+    await context.bot.send_message(
+        chat_id=update.effective_chat.id, 
+        text='Чем могу помочь Вам?', 
+        reply_markup=inline_button_helps()
     )
     return ConversationHandler.END
 
@@ -167,8 +186,13 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     del context.user_data['fermer']
     await context.bot.send_message(
         chat_id=update.effective_chat.id,
-        text='<b>Вы отменили обновление пользователя</b>\n\nЧем могу помочь Вам?',
-        reply_markup=inline_button_helps(),
+        text='<b>Вы отменили обновление пользователя</b>',
+        reply_markup=ReplyKeyboardRemove(True),
+    )
+    await context.bot.send_message(
+        chat_id=update.effective_chat.id, 
+        text='Чем могу помочь Вам?', 
+        reply_markup=inline_button_helps()
     )
     return ConversationHandler.END
 
