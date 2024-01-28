@@ -14,7 +14,16 @@ def __generate_callback_data(action: str, year: str, month: str, day: str):
     return f'{action} {year} {month} {day}'
 
 
-def create_calendar(year = None, month = None):
+def create_calendar(year: int = None, month: int = None) -> InlineKeyboardButton:
+    """Create calendar
+
+    Args:
+        year (int, optional): Year. Defaults to None.
+        month (int, optional): Number month. Defaults to None.
+
+    Returns:
+        InlineKeyboardButton: InlineKeyboardButton array in array for calendar
+    """
     now = date.today()
     if not month: month = now.month
     if not year: year = now.year
@@ -41,7 +50,17 @@ def create_calendar(year = None, month = None):
     return InlineKeyboardMarkup(result)
 
 
-async def proccess_calendar(update: Update, context: ContextTypes.DEFAULT_TYPE, text: str):
+async def proccess_calendar(update: Update, context: ContextTypes.DEFAULT_TYPE, text: str) -> None:
+    """Create calendar in telegram
+
+    Args:
+        update (Update): Update object from python telegram bot
+        context (ContextTypes.DEFAULT_TYPE): ContextTypes object from python telegram bot
+        text (str): Any text for message in calendar
+
+    Returns:
+        None: None
+    """
     action = update.callback_query.data.split()[0]
     year, month, day = [int(i) for i in update.callback_query.data.split()[1::]]
     print(action, year, month, day)
@@ -66,7 +85,16 @@ async def proccess_calendar(update: Update, context: ContextTypes.DEFAULT_TYPE, 
         )
 
 
-def get_inline_list_offers(context: ContextTypes.DEFAULT_TYPE, per_row: int = 3):
+def get_inline_list_offers(context: ContextTypes.DEFAULT_TYPE, per_row: int = 3) -> InlineKeyboardMarkup:
+    """Generate list of offers in inline keyboard
+
+    Args:
+        context (ContextTypes.DEFAULT_TYPE): ContextTypes object from python telegram bot
+        per_row (int, optional): Count offers per in one row. Defaults to 3.
+
+    Returns:
+        InlineKeyboardMarkup: Inline keyboard
+    """
     count, result = 0, []
     for key, item in enumerate(context.user_data['list_offers']):
         if count % per_row == 0: result.append([InlineKeyboardButton(text=item.good.goods_name, callback_data=str(key))])
@@ -76,6 +104,16 @@ def get_inline_list_offers(context: ContextTypes.DEFAULT_TYPE, per_row: int = 3)
 
 
 def get_inline_name_product(product: list[Good], context: ContextTypes.DEFAULT_TYPE, per_row: int = 3) -> InlineKeyboardMarkup:
+    """Generate list of goods name in inline keyboard
+
+    Args:
+        product (list[Good]): Table object from SQLAlchemy Good
+        context (ContextTypes.DEFAULT_TYPE): ContextTypes object from python telegram bot
+        per_row (int, optional): Count goods name per in one row. Defaults to 3.
+
+    Returns:
+        InlineKeyboardMarkup: Inline keyboard
+    """
     count, result = 0, []
     context.user_data['inline']['goods'] = product
     for key, item in enumerate(product):
@@ -87,6 +125,16 @@ def get_inline_name_product(product: list[Good], context: ContextTypes.DEFAULT_T
 
 
 def get_inline_category(context: ContextTypes.DEFAULT_TYPE, category_service: CategoryService, per_row: int = 3) -> InlineKeyboardMarkup:
+    """Generate list of categories name in inline keyboard
+
+    Args:
+        context (ContextTypes.DEFAULT_TYPE): ContextTypes object from python telegram bot
+        category_service (CategoryService): Service for categories table
+        per_row (int, optional): Count categories name per in one row. Defaults to 3.
+
+    Returns:
+        InlineKeyboardMarkup: Inline keyboard
+    """
     count, result = 0, []
     if not context.user_data.get('inline', None):
         context.user_data['inline'] = {}
@@ -99,6 +147,11 @@ def get_inline_category(context: ContextTypes.DEFAULT_TYPE, category_service: Ca
 
 
 def get_inline_repeat() -> InlineKeyboardMarkup:
+    """Create inline keyboard for choose user "Yes" or "No"
+
+    Returns:
+        InlineKeyboardMarkup: Inline keyboard
+    """
     return InlineKeyboardMarkup(
         [
             [InlineKeyboardButton('Да', callback_data='yes'), InlineKeyboardButton('Нет', callback_data='no')]
@@ -107,6 +160,14 @@ def get_inline_repeat() -> InlineKeyboardMarkup:
 
 
 def validate_phone(phone: str) -> bool:
+    """Check validate phone from user
+
+    Args:
+        phone (str): Phone like: "901234567" or "+901234567"
+
+    Returns:
+        bool: Valid or not
+    """
     if len(phone) not in (9, 10):
         return False
     if not phone.isdigit():
@@ -114,22 +175,16 @@ def validate_phone(phone: str) -> bool:
     return '+' + phone if phone[0] != '+' else phone
 
 
-def convert_join_to_dict(data) -> dict[str, list[str]]:
-        if not data: return data
-        first = data[0][1]
-        result = {}
-        for i in data:
-            if first == i[1]:
-                if first not in result: result[first] = [i[0]]
-                else: result[first].append(i[0])
-            else:
-                first = i[1]
-                result[first] = [i[0]]
-        return result
-
-
 class FloatFilter(MessageFilter):
     def filter(self, message: Message) -> bool | FilterDataDict | None:
+        """Filter message only int or float
+
+        Args:
+            message (Message): Message object from python telegram bot
+
+        Returns:
+            bool | FilterDataDict | None: Valid or not
+        """
         try:
             message = round(float(message.text.replace(',', '.')), 6)
         except ValueError:
@@ -137,13 +192,15 @@ class FloatFilter(MessageFilter):
         return True
 
 
-class DateFilter(MessageFilter):
-    def filter(self, message: Message) -> bool | FilterDataDict | None:
-        if len(message.text.split()) != 3: return False
-        return all(i.isdigit() for i in message.text.split())
-
-
 def get_inline_updel(id: int) -> InlineKeyboardMarkup:
+    """Create inline keyboard for offer: update(Обновить), delete(Удалить), skip(Пропустить)
+
+    Args:
+        id (int): Id offer in table for callback data
+
+    Returns:
+        InlineKeyboardMarkup: Inline keyboard
+    """
     return InlineKeyboardMarkup(
         [
             [
@@ -158,6 +215,11 @@ def get_inline_updel(id: int) -> InlineKeyboardMarkup:
 
 
 def inline_button_helps() -> InlineKeyboardMarkup:
+    """Create inline keyboard for menu
+
+    Returns:
+        InlineKeyboardMarkup: Inline keyboard
+    """
     return InlineKeyboardMarkup(
         [
             [
