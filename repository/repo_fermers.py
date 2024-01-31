@@ -1,4 +1,5 @@
 from sqlalchemy import update, select, insert
+from sqlalchemy.exc import PendingRollbackError
 
 from telegram.ext import ContextTypes
 
@@ -7,7 +8,12 @@ from .service import Service
 
 
 class FermersService(Service):
+
     def get(self, telegram_id: int) -> Fermer:
+        try:
+            _ = self.session.connection()
+        except PendingRollbackError:
+            self.session.rollback()
         return self.session.execute(select(Fermer).where(Fermer.telegram_id==telegram_id)).scalar()
     
     def get_by_username(self, username: str) -> Fermer:

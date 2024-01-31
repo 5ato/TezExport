@@ -1,4 +1,5 @@
 from sqlalchemy import insert, select, delete, update
+from sqlalchemy.exc import PendingRollbackError
 
 from typing import Sequence
 
@@ -12,6 +13,10 @@ class OfferService(Service):
         self.session.commit()
         
     def get_full_join(self, id: int) -> Offer:
+        try:
+            _ = self.session.connection()
+        except PendingRollbackError:
+            self.session.rollback()
         return self.session.execute(
             select(
                 Offer
@@ -25,6 +30,10 @@ class OfferService(Service):
         self.session.commit()
 
     def get_list_from_user(self, telegram_id: int) -> Sequence[Offer]:
+        try:
+            _ = self.session.connection()
+        except PendingRollbackError:
+            self.session.rollback()
         return self.session.execute(select(Offer).where(
             Offer.fermer_id==select(Fermer.id)\
             .where(Fermer.telegram_id==telegram_id).scalar_subquery()

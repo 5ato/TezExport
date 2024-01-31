@@ -1,7 +1,5 @@
 from sqlalchemy import select, insert
 
-from telegram.ext import ContextTypes
-
 from database import Good
 from .service import Service
 
