@@ -1,10 +1,14 @@
 from sqlalchemy.orm import mapped_column, Mapped, relationship
-from sqlalchemy import BigInteger, String, ForeignKey, Integer, Numeric
+from sqlalchemy import BigInteger, String, ForeignKey, Integer, Numeric, Enum
 from sqlalchemy.dialects.postgresql import BYTEA
 
 from datetime import datetime, date
+from typing import Literal
 
 from .base import Base
+
+
+Language = Literal['ru', 'uz', 'en']
 
 
 class Fermer(Base):
@@ -24,6 +28,7 @@ class Fermer(Base):
     other_contact: Mapped[str | None] = mapped_column(String)
     rayting: Mapped[int | None]
     region_id: Mapped[int | None]
+    language: Mapped[Language] = mapped_column(Enum('ru', 'uz', 'en'))
     
     offers: Mapped[list['Offer']] = relationship(back_populates='fermer')
 

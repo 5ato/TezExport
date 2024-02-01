@@ -246,6 +246,14 @@ def get_inline_updel(id: int) -> InlineKeyboardMarkup:
     )
 
 
+def get_inline_language() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        [
+            [InlineKeyboardButton('Рус', callback_data='ru'), InlineKeyboardButton("O'z", callback_data='uz'), InlineKeyboardButton('Eng', callback_data='en')]
+        ]
+    )
+
+
 def inline_button_helps() -> InlineKeyboardMarkup:
     """Create inline keyboard for menu
 

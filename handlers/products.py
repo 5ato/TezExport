@@ -93,6 +93,12 @@ async def get_name(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
 async def get_count(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     num = round(float(update.effective_message.text.replace(',', '.')), 6)
+    if num > 100000:
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text='Вы ввели слишком большие значения',
+        )
+        return COUNT
     context.user_data['product']['seller_quantity'] = num
     reply_text = (f'<b>Категория: {context.user_data["product"]["category"]}</b>\n' + 
                   f'<b>Наименование: {context.user_data["product"]["name"]}</b>\n\n' +
@@ -359,16 +365,16 @@ async def callback_get_product(update: Update, context: ContextTypes.DEFAULT_TYP
 async def callback_updel_product(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.callback_query.answer()
     print(update.callback_query.data)
+    await update.callback_query.delete_message()
     action, id = update.callback_query.data.split(':')
     if action == 'delete':
         context.bot_data['offer_service'].delete(int(id))
-        await update.callback_query.delete_message()
-        await update.callback_query.edit_message_text(
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id,
             text='<b>Вы успешно удалили товар</b>\n\nЧем могу помочь Вам?',
             reply_markup=inline_button_helps()
         )
     elif action == 'skip':
-        await update.callback_query.delete_message()
         await context.bot.send_message(
         chat_id=update.effective_chat.id,
         text='Чем могу Вам помочь?',
@@ -386,7 +392,8 @@ async def callback_updel_product(update: Update, context: ContextTypes.DEFAULT_T
         )
         context.user_data['over'] = True
         context.user_data['updated'] = True
-        await update.callback_query.edit_message_text(
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id,
             text=f'Выберите категорию товара\n\n<em>Прошлое: {context.user_data["product"]["category"]}</em>', 
             reply_markup=get_inline_category(context, context.bot_data['category_service'])
         )

@@ -7,10 +7,10 @@ from telegram.ext import (
     filters,
 )
 
-from other import inline_button_helps, validate_phone
+from other import inline_button_helps, validate_phone, get_inline_language
 
 
-NAME_TYPING, CONTACT, ADDRESS, LOCATION = range(4)
+LANGUAGE, NAME_TYPING, CONTACT, ADDRESS, LOCATION = range(5)
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -21,11 +21,21 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
             reply_markup=inline_button_helps()
         )
         return ConversationHandler.END
-    context.user_data['fermer'] = {}
-    context.user_data['fermer']['telegram_id'] = update.effective_user.id
     await context.bot.send_message(
         chat_id=update.effective_chat.id,
-        text='Здравствуйте, cначало нужно пройти регистрацию\n\nКак вас зовут?\n\n<b><em>Фамилия, имя и отчество<u>(Необязательно)</u> введите через пробел</em></b>'
+        text='Здравствуйте, cначало нужно пройти регистрацию\n\n<b>Выберите язык</b>',
+        reply_markup=get_inline_language(),
+    )
+    context.user_data['fermer'] = {}
+    context.user_data['fermer']['telegram_id'] = update.effective_user.id
+    return LANGUAGE
+
+
+async def callback_get_language(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    await update.callback_query.answer()
+    context.user_data['fermer']['language'] = update.callback_query.data
+    await update.callback_query.edit_message_text(
+        text='Как вас зовут?\n\n<b><em>Фамилия, имя и отчество<u>(Необязательно)</u> введите через пробел</em></b>'
     )
     return NAME_TYPING
 
@@ -107,10 +117,10 @@ async def callback_update_profile(update: Update, context: ContextTypes.DEFAULT_
     await update.callback_query.delete_message()
     await context.bot.send_message(
         chat_id=update.effective_chat.id,
-        text='Введите ваше ФИО.\n<b><em>Фамилия, имя и отчество<u>(Необязательно)</u> введите через пробел</em></b>',
-        reply_markup=ReplyKeyboardMarkup([[KeyboardButton('Отмена')]], resize_keyboard=True, one_time_keyboard=True)
+        text='<b>Выберите язык</b>',
+        reply_markup=get_inline_language()
     )
-    return NAME_TYPING
+    return LANGUAGE
 
 
 async def callback_update_location(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -203,6 +213,7 @@ user_handlers = [
         CommandHandler(['start'], callback=start), CallbackQueryHandler(callback_update_profile, pattern='change_profile'),
     ],
     states={
+        LANGUAGE: [MessageHandler(filters.Text(['Отмена']), callback=cancel), CallbackQueryHandler(callback_get_language)],
         NAME_TYPING: [MessageHandler(filters.Text(['Отмена']), callback=cancel), MessageHandler(filters.TEXT, callback=get_name)],
         CONTACT: [
             MessageHandler(filters.Text(['Отмена']), callback=cancel),
