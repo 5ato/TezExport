@@ -78,20 +78,45 @@ class Good(Base):
     )
     islicensable: Mapped[bool | None]
     isclientrestricted: Mapped[bool | None]
-    unit_types_id: Mapped[int | None]
+    unit_types_id: Mapped[int | None] = mapped_column(BigInteger, ForeignKey('unit_types.id'))
     goods_categories_id: Mapped[int] = mapped_column(BigInteger, ForeignKey('goods_categories.id'))
     tnved_code: Mapped[str | None] = mapped_column(String(15))
     is_hi_liquid: Mapped[bool | None]
     tnved_id: Mapped[int | None]
+    goods_name_ru: Mapped[str | None] = mapped_column(String(50))
+    goods_name_uz: Mapped[str | None] = mapped_column(String(50))
+    goods_name_en: Mapped[str | None] = mapped_column(String(50))
     
+    unit_types: Mapped['UnitTypes'] = relationship(back_populates='goods')
     offers: Mapped[list[Offer]] = relationship(back_populates='good')
     good_category: Mapped['Good_Category'] = relationship(back_populates='goods')
+
+
+class UnitTypes(Base):
+    __tablename__ = 'unit_types'
+    
+    unit_types_name: Mapped[str | None] = mapped_column(String(50))
+    unit_types_name_ru: Mapped[str] = mapped_column(String(50), nullable=False)
+    unit_types_name_uz: Mapped[str] = mapped_column(String(50), nullable=False)
+    unit_types_name_en: Mapped[str] = mapped_column(String(50), nullable=False)
+    unit_code: Mapped[str | None] = mapped_column(String(10))
+    inserted_by: Mapped[str | None] = mapped_column(String(50))
+    updated_by: Mapped[str | None] = mapped_column(String(50))
+    inserted_time: Mapped[datetime] = mapped_column(default=datetime.utcnow)
+    updated_time: Mapped[datetime] = mapped_column(
+        default=datetime.utcnow, onupdate=datetime.utcnow
+    )
+    
+    goods: Mapped[Good] = relationship(back_populates='unit_types')
 
 
 class Good_Category(Base):
     __tablename__ = 'goods_categories'
     
     goods_categories_name: Mapped[str] = mapped_column(String(50), nullable=False, unique=True)
+    goods_categories_name_ru: Mapped[str] = mapped_column(String(50), nullable=False, unique=True)
+    goods_categories_name_uz: Mapped[str] = mapped_column(String(50), nullable=False, unique=True)
+    goods_categories_name_en: Mapped[str] = mapped_column(String(50), nullable=False, unique=True)
     goods_code: Mapped[str | None] = mapped_column(String(10))
     is_restricted: Mapped[bool | None]
     inserted_by: Mapped[str | None] = mapped_column(String(50))

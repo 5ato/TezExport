@@ -16,6 +16,9 @@ class FermersService(Service):
             self.session.rollback()
         return self.session.execute(select(Fermer).where(Fermer.telegram_id==telegram_id)).scalar()
     
+    def get_only_language(self, telegram_id: int) -> str:
+        return self.session.execute(select(Fermer.language).where(Fermer.telegram_id==telegram_id)).scalar()
+    
     def get_by_username(self, username: str) -> Fermer:
         return self.session.execute(select(Fermer).where(Fermer.username==username)).scalar()
 

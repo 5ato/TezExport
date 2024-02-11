@@ -3,11 +3,19 @@ from telegram.ext._utils.types import FilterDataDict
 from telegram.ext.filters import MessageFilter
 from telegram.ext import ContextTypes
 
-from database import Good
+from database import Good, UnitTypes
 from repository import CategoryService
+from handlers.message import localization
 
 from datetime import date, timedelta
 import calendar
+
+
+unit_type_message = {
+    1: lambda language, message: localization[language][message + '_' + 'head'],
+    2: lambda language, message: localization[language][message + '_' + 'litr'],
+    3: lambda language, message: localization[language][message + '_' + 'ton'],
+}
 
 
 def __generate_callback_data(action: str, year: str, month: str, day: str):
@@ -27,7 +35,6 @@ def create_calendar(year: int = None, month: int = None) -> InlineKeyboardButton
     now = date.today()
     if not month: month = now.month
     if not year: year = now.year
-    print(year, month)
     result = [[InlineKeyboardButton(f'{calendar.month_name[month]} {year}', callback_data=__generate_callback_data('IGNORE', year, month, 0))]]
     row = []
     for i in ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']:
@@ -63,7 +70,6 @@ async def proccess_calendar(update: Update, context: ContextTypes.DEFAULT_TYPE, 
     """
     action = update.callback_query.data.split()[0]
     year, month, day = [int(i) for i in update.callback_query.data.split()[1::]]
-    print(action, year, month, day)
     curr = date(year, month, 1)
     if action == 'IGNORE':
         await update.callback_query.answer()
@@ -105,7 +111,6 @@ def get_inline_list_offers(context: ContextTypes.DEFAULT_TYPE, per_row: int = 3)
 
 async def proccess_name_product(update: Update, context: ContextTypes.DEFAULT_TYPE):
     data = update.callback_query.data
-    print(context.user_data['name_index'])
     await update.callback_query.answer()
     if data == 'PREV':
         if context.user_data['name_index'] > 0:
@@ -130,7 +135,20 @@ def get_inline_name_full_product(result: list[Good]):
     return InlineKeyboardMarkup(result)
 
 
-def get_inline_name_product(product: list[Good], context: ContextTypes.DEFAULT_TYPE, per_row: int = 3, one_time: int = 15) -> list[list[InlineKeyboardButton]]:
+def get_inline_unit_type(unit_types: list[UnitTypes], language: str, per_row: int = 3) -> InlineKeyboardMarkup:
+    count, result = 0, []
+    for item in unit_types:
+        if item.__dict__['unit_types_name_' + language]:
+            name = item.__dict__['unit_types_name_' + language]
+        else:
+            name = item.unit_types_name
+        if count % per_row == 0: result.append([InlineKeyboardButton(text=name, callback_data=str(item.id))])
+        else: result[-1].append(InlineKeyboardButton(text=name, callback_data=str(item.id)))
+        count += 1
+    return InlineKeyboardMarkup(result)
+
+
+def get_inline_name_product(product: list[Good], context: ContextTypes.DEFAULT_TYPE, language: str, per_row: int = 3, one_time: int = 15) -> list[list[InlineKeyboardButton]]:
     """Generate list of goods name in inline keyboard
 
     Args:
@@ -143,20 +161,25 @@ def get_inline_name_product(product: list[Good], context: ContextTypes.DEFAULT_T
     """
     count_per_row, count_one_time, result = 0, 0, []
     context.user_data['inline']['goods'] = product
+    name = ''
     for key, item in enumerate(product):
+        if item.__dict__['goods_name_' + language]:
+            name = item.__dict__['goods_name_' + language]
+        else:
+            name = item.goods_name
         if count_one_time % one_time == 0:
-            if count_per_row % per_row == 0: result.append([[InlineKeyboardButton(text=item.goods_name, callback_data=str(key))]])
-            else: result[-1].append(InlineKeyboardButton(text=item.goods_name, callback_data=str(key)))
+            if count_per_row % per_row == 0:result.append([[InlineKeyboardButton(text=name, callback_data=str(key))]])
+            else: result[-1].append(InlineKeyboardButton(text=name, callback_data=str(key)))
             count_per_row += 1
         else:
-            if count_per_row % per_row == 0: result[-1].append([InlineKeyboardButton(text=item.goods_name, callback_data=str(key))])
-            else: result[-1][-1].append(InlineKeyboardButton(text=item.goods_name, callback_data=str(key)))
+            if count_per_row % per_row == 0: result[-1].append([InlineKeyboardButton(text=name, callback_data=str(key))])
+            else: result[-1][-1].append(InlineKeyboardButton(text=name, callback_data=str(key)))
             count_per_row += 1
         count_one_time += 1
     return result
 
 
-def get_inline_category(context: ContextTypes.DEFAULT_TYPE, category_service: CategoryService, per_row: int = 3) -> InlineKeyboardMarkup:
+def get_inline_category(context: ContextTypes.DEFAULT_TYPE, category_service: CategoryService, language: str, per_row: int = 3) -> InlineKeyboardMarkup:
     """Generate list of categories name in inline keyboard
 
     Args:
@@ -172,13 +195,13 @@ def get_inline_category(context: ContextTypes.DEFAULT_TYPE, category_service: Ca
         context.user_data['inline'] = {}
         context.user_data['inline']['category'] = category_service.get_all_with_goods()
     for key, item in enumerate(context.user_data['inline']['category']):
-        if count % per_row == 0: result.append([InlineKeyboardButton(text=item.goods_categories_name, callback_data=str(key))])
-        else: result[-1].append(InlineKeyboardButton(text=item.goods_categories_name, callback_data=str(key)))
+        if count % per_row == 0: result.append([InlineKeyboardButton(text=item.__dict__['goods_categories_name_' + language], callback_data=str(key))])
+        else: result[-1].append(InlineKeyboardButton(text=item.__dict__['goods_categories_name_' + language], callback_data=str(key)))
         count += 1
     return InlineKeyboardMarkup(result)
 
 
-def get_inline_repeat() -> InlineKeyboardMarkup:
+def get_inline_repeat(lang_local: dict) -> InlineKeyboardMarkup:
     """Create inline keyboard for choose user "Yes" or "No"
 
     Returns:
@@ -186,7 +209,7 @@ def get_inline_repeat() -> InlineKeyboardMarkup:
     """
     return InlineKeyboardMarkup(
         [
-            [InlineKeyboardButton('Да', callback_data='yes'), InlineKeyboardButton('Нет', callback_data='no')]
+            [InlineKeyboardButton(lang_local['yes'], callback_data='yes'), InlineKeyboardButton(lang_local['no'], callback_data='no')]
         ]
     )
 
@@ -224,7 +247,7 @@ class FloatFilter(MessageFilter):
         return True
 
 
-def get_inline_updel(id: int) -> InlineKeyboardMarkup:
+def get_inline_updel(language: str, id: int) -> InlineKeyboardMarkup:
     """Create inline keyboard for offer: update(Обновить), delete(Удалить), skip(Пропустить)
 
     Args:
@@ -236,11 +259,11 @@ def get_inline_updel(id: int) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         [
             [
-                InlineKeyboardButton('Обнововить', callback_data=f'update:{id}'),
-                InlineKeyboardButton('Удалить', callback_data=f'delete:{id}'),
+                InlineKeyboardButton(localization[language]['update'], callback_data=f'update:{id}'),
+                InlineKeyboardButton(localization[language]['delete'], callback_data=f'delete:{id}'),
             ],
             [
-                InlineKeyboardButton('Назад в меню', callback_data='skip:-1'),
+                InlineKeyboardButton(localization[language]['back'], callback_data='skip:-1'),
             ],
         ]
     )
@@ -254,7 +277,7 @@ def get_inline_language() -> InlineKeyboardMarkup:
     )
 
 
-def inline_button_helps() -> InlineKeyboardMarkup:
+def inline_button_helps(language: str) -> InlineKeyboardMarkup:
     """Create inline keyboard for menu
 
     Returns:
@@ -263,18 +286,17 @@ def inline_button_helps() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         [
             [
-                InlineKeyboardButton('Изменить профиль', callback_data='change_profile'),
-                InlineKeyboardButton('Изменить локацию', callback_data='change_location')
+                InlineKeyboardButton(localization[language]['inline_change'], callback_data='change_profile'),
+                InlineKeyboardButton(localization[language]['inline_location'], callback_data='change_location')
             ],
             [
-                InlineKeyboardButton('Добавить товар', callback_data='add_product'),
+                InlineKeyboardButton(localization[language]['inline_add_product'], callback_data='add_product'),
             ],
             [
-                InlineKeyboardButton('Список товаров', callback_data='list_product')
+                InlineKeyboardButton(localization[language]['inline_list_product'], callback_data='list_product')
             ],
             [
-                InlineKeyboardButton('Наш сайт', url='https://tezexport.uz/')
+                InlineKeyboardButton(localization[language]['inline_site'], url='https://tezexport.uz/')
             ]
         ]
     )
-    

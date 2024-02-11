@@ -4,7 +4,7 @@ from sqlalchemy.exc import PendingRollbackError
 from typing import Sequence
 
 from .service import Service
-from database import Offer, Fermer, Good, Good_Category
+from database import Offer, Fermer, Good, Good_Category, UnitTypes
 
 
 class OfferService(Service):
@@ -23,6 +23,7 @@ class OfferService(Service):
             ).where(Offer.id==id)\
             .join_from(Offer, Good, Offer.goods_id==Good.id)\
             .join_from(Good, Good_Category, Good.goods_categories_id==Good_Category.id)
+            .join_from(Good, UnitTypes, Good.unit_types_id==UnitTypes.id)
         ).scalar()
         
     def update(self, id: int, data: dict) -> None:
