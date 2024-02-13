@@ -2,6 +2,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Message, Update
 from telegram.ext._utils.types import FilterDataDict
 from telegram.ext.filters import MessageFilter
 from telegram.ext import ContextTypes
+from telegram import File
 
 from database import Good, UnitTypes
 from repository import CategoryService
@@ -9,6 +10,9 @@ from handlers.message import localization
 
 from datetime import date, timedelta
 import calendar
+import requests
+import io
+import os
 
 
 unit_type_message = {
@@ -245,6 +249,18 @@ class FloatFilter(MessageFilter):
         except ValueError:
             return False
         return True
+
+
+async def save_media(data: File, telegram_id: str):
+    name = data.file_path.split('/')[-1].split()[-1]
+    print(name)
+    if not os.path.exists(f'C:/Users/tencc/Documents/media/{telegram_id}'):
+        os.makedirs(f'C:/Users/tencc/Documents/media/{telegram_id}')
+    if not os.path.exists(f'C:/Users/tencc/Documents/media/{telegram_id}/{data.file_id}'):
+        os.makedirs(f'C:/Users/tencc/Documents/media/{telegram_id}/{data.file_id}')
+    with open(f'C:/Users/tencc/Documents/media/{telegram_id}/{data.file_id}.{name}', 'wb') as file:
+        file.write(requests.get(data.file_path).content)
+        
 
 
 def get_inline_updel(language: str, id: int) -> InlineKeyboardMarkup:

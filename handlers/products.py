@@ -11,7 +11,7 @@ from other import (
     get_inline_category, get_inline_repeat, create_calendar, 
     proccess_calendar, get_inline_list_offers, get_inline_updel,
     get_inline_name_full_product, proccess_name_product,
-    get_inline_unit_type, unit_type_message
+    get_inline_unit_type, unit_type_message, save_media
 )
 
 from datetime import date
@@ -175,8 +175,9 @@ async def get_min_part(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
 
 
 async def get_media(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    if update.effective_message.photo: context.user_data['product']['foto_video_file_name'] = update.effective_message.photo[1].file_id
-    else: context.user_data['product']['foto_video_file_name'] = update.effective_message.video.file_id
+    context.user_data['product']['foto_video_file_name'] = update.effective_message.photo[1].file_id if update.effective_message.photo else update.effective_message.video.file_id
+    context.user_data['product']['file'] = update.effective_message.photo[1] if update.effective_message.photo else update.effective_message.video
+    context.user_data['product']['file'] = await context.user_data['product']['file'].get_file()
     reply_text = (localization[context.user_data['language']]['category'](context.user_data["product"]["category"]) + '\n' + 
                   localization[context.user_data['language']]['name'](context.user_data["product"]["name"]) + '\n\n')
     reply_text += unit_type_message[context.user_data['product']['unit_type_id']](context.user_data['language'], 'price_per')
@@ -334,7 +335,8 @@ async def get_location(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
 async def callback_yes(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.callback_query.answer()
     await update.callback_query.delete_message()
-    del context.user_data['product']['category'], context.user_data['product']['name'], context.user_data['product']['category_id'], context.user_data['product']['unit_type_id']
+    await save_media(context.user_data['product']['file'], str(update.effective_user.id))
+    del context.user_data['product']['category'], context.user_data['product']['name'], context.user_data['product']['category_id'], context.user_data['product']['unit_type_id'], context.user_data['product']['file']
     if context.user_data.get('updated', None):
         context.bot_data['offer_service'].update(context.user_data['product']['id'], context.user_data['product'])
         del context.user_data['updated']
