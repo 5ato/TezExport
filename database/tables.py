@@ -38,8 +38,8 @@ class Offer(Base):
     
     fermer_id: Mapped[int] = mapped_column(Integer, ForeignKey('fermers.id'))
     is_active: Mapped[bool | None]
-    inserted_by: Mapped[str | None] = mapped_column(String(50))
-    updated_by: Mapped[str | None] = mapped_column(String(50))
+    inserted_by: Mapped[str | None] = mapped_column(String(50), default='TelegramBot')
+    updated_by: Mapped[str | None] = mapped_column(String(50), default='TelegramBot')
     inserted_time: Mapped[datetime] = mapped_column(default=datetime.utcnow)
     updated_time: Mapped[datetime] = mapped_column(
         default=datetime.utcnow, onupdate=datetime.utcnow
@@ -70,8 +70,8 @@ class Good(Base):
     __tablename__ = 'goods'
     
     goods_name: Mapped[str] = mapped_column(String(250), nullable=False, unique=True)
-    inserted_by: Mapped[str | None] = mapped_column(String(50))
-    updated_by: Mapped[str | None] = mapped_column(String(50))
+    inserted_by: Mapped[str | None] = mapped_column(String(50), default='TelegramBot')
+    updated_by: Mapped[str | None] = mapped_column(String(50), default='TelegramBot')
     inserted_time: Mapped[datetime] = mapped_column(default=datetime.utcnow)
     updated_time: Mapped[datetime] = mapped_column(
         default=datetime.utcnow, onupdate=datetime.utcnow
@@ -100,8 +100,8 @@ class UnitTypes(Base):
     unit_types_name_uz: Mapped[str] = mapped_column(String(50), nullable=False)
     unit_types_name_en: Mapped[str] = mapped_column(String(50), nullable=False)
     unit_code: Mapped[str | None] = mapped_column(String(10))
-    inserted_by: Mapped[str | None] = mapped_column(String(50))
-    updated_by: Mapped[str | None] = mapped_column(String(50))
+    inserted_by: Mapped[str | None] = mapped_column(String(50), default='TelegramBot')
+    updated_by: Mapped[str | None] = mapped_column(String(50), default='TelegramBot')
     inserted_time: Mapped[datetime] = mapped_column(default=datetime.utcnow)
     updated_time: Mapped[datetime] = mapped_column(
         default=datetime.utcnow, onupdate=datetime.utcnow
@@ -119,8 +119,8 @@ class Good_Category(Base):
     goods_categories_name_en: Mapped[str] = mapped_column(String(50), nullable=False, unique=True)
     goods_code: Mapped[str | None] = mapped_column(String(10))
     is_restricted: Mapped[bool | None]
-    inserted_by: Mapped[str | None] = mapped_column(String(50))
-    updated_by: Mapped[str | None] = mapped_column(String(50))
+    inserted_by: Mapped[str | None] = mapped_column(String(50), default='TelegramBot')
+    updated_by: Mapped[str | None] = mapped_column(String(50), default='TelegramBot')
     inserted_time: Mapped[datetime] = mapped_column(default=datetime.utcnow)
     updated_time: Mapped[datetime] = mapped_column(
         default=datetime.utcnow, onupdate=datetime.utcnow
