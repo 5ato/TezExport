@@ -34,25 +34,29 @@ localization = {
         'name': lambda x: f'<b>Наименование: {x}</b>',
         'choose_unit_type': 'Определите тип вашего продукта\n<b>Выберете из списка</b>',
         
-        'count_product_ton': 'Напишите количество вашего продукта <b>В ТОННАХ</b>(Можно дать дробное значение через запятую)',
-        'count_product_litr': 'Напишите объём вашего продукта <b>В ЛИТРАХ</b>(Можно дать дробное значение через запятую)',
-        'count_product_head': 'Напишите количество голов вашего продукта <b>В ГОЛОВАХ</b>(Можно дать дробное значение через запятую)',
+        'count_product_ton': 'Напишите количество вашего продукта в <b>ТОННАХ</b>(Можно дать дробное значение через запятую)',
+        'count_product_kg': 'Напишите количество вашего продукта в <b>КИЛОГРАММАХ</b>(Можно дать дробное значение через запятую)',
+        'count_product_pieces': 'Напишите количество вашего продукта в <b>ШТУКАХ</b>(Можно дать дробное значение через запятую)',
+        'count_product_head': 'Напишите количество голов вашего продукта в <b>ГОЛОВАХ</b>(Можно дать дробное значение через запятую)',
         
         'wrong_count': 'Вы ввели слишком большие значения',
         'pack_product': 'Напишите описание упаковки/стадо Вашего товара',
         
-        'pack_quantity_ton': 'Напишите количество продукта в одной вашей упаковке в килограммах',
-        'pack_quantity_litr': 'Напишите количество продукта в одной вашей упаковке в литрах',
-        'pack_quantity_head': 'Напишите количество голов в одном стаде',
+        'pack_quantity_ton': 'Напишите количество продукта в одной вашей упаковке в <b>КИЛОГРАММАХ</b>',
+        'pack_quantity_kg': 'Напишите количество продукта в одной вашей упаковке в <b>ШТУКАХ</b>',
+        'pack_quantity_pieces': 'Напишите количество продукта в одной вашей упаковке в <b>ШТУКАХ</b>',
+        'pack_quantity_head': 'Напишите количество <b>ГОЛОВ</b> в одном стаде',
         
-        'min_part_ton': 'Напишите минимальную партию в тоннах',
-        'min_part_litr': 'Напишите минимальную партию в тоннах',
-        'min_part_head': 'Напишите минимальное количество голов в стаде',
+        'min_part_ton': 'Напишите минимальную партию в <b>ТОННАХ</b>',
+        'min_part_kg': 'Напишите минимальную партию в <b>КИЛОГРАММАХ</b>',
+        'min_part_pieces': 'Напишите минимальную партию в <b>ШТУКАХ</b>',
+        'min_part_head': 'Напишите минимальное количество <b>ГОЛОВ</b> в стаде',
         
         'foto_video': 'Пришли фото или видео вашего продукта',
         
-        'price_per_ton': 'Напишите цену за килограмм(Пишите в точности до 6 знаков после запятой)',
-        'price_per_litr': 'Напишите цену за литр(Пишите в точности до 6 знаков после запятой)',
+        'price_per_ton': 'Напишите цену за тонну(Пишите в точности до 6 знаков после запятой)',
+        'price_per_kg': 'Напишите цену за килограмм(Пишите в точности до 6 знаков после запятой)',
+        'price_per_pieces': 'Напишите цену за штуку(Пишите в точности до 6 знаков после запятой)',
         'price_per_head': 'Напишите цену за голову(Пишите в точности до 6 знаков после запятой)',
         
         'seller_sum_data': lambda x: f'<b>Рассчитанная сумма за весь товар: {x}</b>',
@@ -123,25 +127,29 @@ localization = {
         'name': lambda x: f'<b>Ism: {x}</b>',
         'choose_unit_type': "Mahsulot turini aniqlang\n<b>Ro'yxatdan tanlang</b>",
         
-        'count_product_ton': 'Mahsulot miqdorini yozing <b>TONNADA</b>(siz vergul orqali kasr qiymatini berishingiz mumkin)',
-        'count_product_litr': 'Mahsulotingiz hajmini yozing<b>LITER</b>(Siz vergul bilan ajratilgan kasr qiymatini berishingiz mumkin)',
-        'count_product_head': 'Mahsulotingizning boshlar sonini <b>HEADS</b>ga yozing (siz vergul bilan ajratilgan kasr qiymatini berishingiz mumkin)',
+        'count_product_ton': 'Mahsulotingiz miqdorini <b>TONS</b>da yozing (siz vergul bilan ajratilgan kasr qiymatini berishingiz mumkin)',
+        'count_product_kg': 'Mahsulotingiz miqdorini <b>KILOGRAMLAR</b>da yozing (siz vergul bilan ajratilgan kasr qiymatini berishingiz mumkin)',
+        'count_product_pieces': "Mahsulotingiz miqdorini <b>PARA</b>ga yozing (siz vergul bilan ajratilgan kasr qiymatini berishingiz mumkin)",
+        'count_product_head': 'Mahsulotingizning bosh sonini <b>HEADS</b>ga yozing (siz vergul bilan ajratilgan kasr qiymatini berishingiz mumkin)',
         
         'wrong_count': 'Siz juda katta qadriyatlarni kiritdingiz',
         'pack_product': 'Mahsulotingizning qadoqlash/podasining tavsifini yozing',
         
-        'pack_quantity_ton': 'Kilogrammdagi paketlaringizdan birida mahsulot miqdorini yozing',
-        'pack_quantity_litr': 'Paketlaringizdan biridagi mahsulot miqdorini litrda yozing',
-        'pack_quantity_head': 'Bir podadagi boshlar sonini yozing',
+        'pack_quantity_ton': 'Paketlaringizdan biridagi mahsulot miqdorini <b>KILOGRAMLAR</b>ga yozing',
+        'pack_quantity_kg': 'Paketlaringizdan biridagi mahsulot miqdorini <b>PARA</b>ga yozing',
+        'pack_quantity_pieces': 'Paketlaringizdan biridagi mahsulot miqdorini <b>PARA</b>ga yozing',
+        'pack_quantity_head': 'Bitta podadagi <b>BOLALAR</b> sonini yozing',
         
-        'min_part_ton': 'Tonnadagi minimal partiya yozing',
-        'min_part_litr': 'Tonnadagi minimal partiya yozing',
-        'min_part_head': 'Podadagi boshlarning minimal sonini yozing',
+        'min_part_ton': 'Minimal miqdorni <b>TONS</b> da yozing',
+        'min_part_kg': 'Minimal miqdorni <b>KILOGRAMS</b>ga yozing',
+        'min_part_pieces': 'Minimal miqdorni <b>PICES</b> shaklida yozing',
+        'min_part_head': 'Podadagi eng kam <b>BOSHLAR</b> sonini yozing',
         
         'foto_video': 'Came a photo or video of your product',
         
-        'price_per_ton': 'Kilogramm narxini yozing (6 kasrga aniq yozing)',
-        'price_per_litr': 'Bir litr narxini yozing (6 kasrga aniq yozing)',
+        'price_per_ton': 'Tonna narxini yozing (6 kasrga aniq yozing)',
+        'price_per_kg': 'Kilogramm narxini yozing (aniq 6 kasrgacha yozing)',
+        'price_per_pieces': 'Bir parcha narxini yozing (aniq 6 kasrgacha yozing)',
         'price_per_head': 'Bosh boshiga narxni yozing (aniq 6 kasrgacha yozing)',
         
         'seller_sum_data': lambda x: f"<b>To'liq mahsulot uchun hisoblangan miqdor: {x}</b>",
@@ -212,25 +220,29 @@ localization = {
         'name': lambda x: f'<b>Name: {x}</b>',
         'choose_unit_type': 'Determine your product type\n<b>Select from the list</b>',
         
-        'count_product_ton': 'Write the amount of your product <b>IN TONS</b>(you can give a fractional value through a comma)',
-        'count_product_litr': 'Write the volume of your product <b>LITERS</b>(You can give a fractional value separated by a comma)',
-        'count_product_head': 'Write the number of heads of your product <b>IN HEADS</b>(You can give a fractional value separated by a comma)',
+        'count_product_ton': 'Write the quantity of your product in <b>TONS</b>(You can give a fractional value separated by a comma)',
+        'count_product_kg': 'Write the quantity of your product in <b>KILOGRAMS</b>(You can give a fractional value separated by a comma)',
+        'count_product_pieces': 'Write the quantity of your product in <b>PIECES</b>(You can give a fractional value separated by a comma)',
+        'count_product_head': 'Write the number of heads of your product in <b>HEADS</b>(You can give a fractional value separated by a comma)',
+        
+        'pack_quantity_ton': 'Write the amount of product in one of your packages in <b>KILOGRAMS</b>',
+        'pack_quantity_kg': 'Write the amount of product in one of your packages in <b>PIECES</b>',
+        'pack_quantity_pieces': 'Write the amount of product in one of your packages in <b>PIECES</b>',
+        'pack_quantity_head': 'Write the number of <b>HEADS</b> in one herd',
         
         'wrong_count': 'You introduced too big values',
         'pack_product': 'Write a description of the packaging/herd of your product',
         
-        'pack_quantity_ton': 'Write the amount of product in one of your packages in kilograms',
-        'pack_quantity_litr': 'Write the amount of product in one of your packages in liters.',
-        'pack_quantity_head': 'Write the number of heads in one herd',
-        
-        'min_part_ton': 'Write a minimum batch in tons',
-        'min_part_litr': 'Write a minimum batch in tons',
-        'min_part_head': 'Write the minimum number of heads in the herd',
+        'min_part_ton': 'Write the minimum quantity in <b>TONS</b>',
+        'min_part_kg': 'Write the minimum quantity in <b>KILOGRAMS</b>',
+        'min_part_pieces': 'Write the minimum quantity in <b>PIECES</b>',
+        'min_part_head': 'Write the minimum number of <b>HEADS</b> in the herd',
         
         'foto_video': 'Came a photo or video of your product',
         
-        'price_per_ton': 'Write the price per kilogram (Write exactly to 6 decimal places)',
-        'price_per_litr': 'Write the price per liter (Write exactly to 6 decimal places)',
+        'price_per_ton': 'Write the price per ton (Write exactly to 6 decimal places)',
+        'price_per_kg': 'Write the price per kilogram (Write exactly to 6 decimal places)',
+        'price_per_pieces': 'Write the price per piece (Write exactly to 6 decimal places)',
         'price_per_head': 'Write the price per head (Write exactly to 6 decimal places)',
         
         'seller_sum_data': lambda x: f'<b>Calculated amount for the entire product: {x}</b>',

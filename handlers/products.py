@@ -175,9 +175,16 @@ async def get_min_part(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
 
 
 async def get_media(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    context.user_data['product']['foto_video_file_name'] = update.effective_message.photo[1].file_id if update.effective_message.photo else update.effective_message.video.file_id
-    context.user_data['product']['file'] = update.effective_message.photo[1] if update.effective_message.photo else update.effective_message.video
+    context.user_data['product']['foto_video_file_name'] = update.effective_message.photo[-2].file_id if update.effective_message.photo else update.effective_message.video.file_id
+    context.user_data['product']['file'] = update.effective_message.photo[-2] if update.effective_message.photo else update.effective_message.video
     context.user_data['product']['file'] = await context.user_data['product']['file'].get_file()
+    file = await save_media(context.user_data['product']['file'])
+    context.user_data['product']['PictureId'] = context.bot_data['picture_service'].create(
+        {
+            'FilePath': f'/pictures/files/{context.user_data["product"]["foto_video_file_name"]}.{file[0]}', 
+            'Image': file[1]
+        }
+    )
     reply_text = (localization[context.user_data['language']]['category'](context.user_data["product"]["category"]) + '\n' + 
                   localization[context.user_data['language']]['name'](context.user_data["product"]["name"]) + '\n\n')
     reply_text += unit_type_message[context.user_data['product']['unit_type_id']](context.user_data['language'], 'price_per')
@@ -335,7 +342,6 @@ async def get_location(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
 async def callback_yes(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.callback_query.answer()
     await update.callback_query.delete_message()
-    await save_media(context.user_data['product']['file'], str(update.effective_user.id))
     del context.user_data['product']['category'], context.user_data['product']['name'], context.user_data['product']['category_id'], context.user_data['product']['unit_type_id'], context.user_data['product']['file']
     if context.user_data.get('updated', None):
         context.bot_data['offer_service'].update(context.user_data['product']['id'], context.user_data['product'])
@@ -377,7 +383,7 @@ async def callback_list_product(update: Update, context: ContextTypes.DEFAULT_TY
         await context.bot.send_message(
         chat_id=update.effective_chat.id,
         text=localization[context.user_data['language']]['not_code'],
-        reply_markup=inline_button_helps()
+        reply_markup=inline_button_helps(context.user_data['language'])
     )
 
 
@@ -388,38 +394,29 @@ async def callback_get_product(update: Update, context: ContextTypes.DEFAULT_TYP
     name = data.good.__dict__.get('goods_name_' + context.user_data["language"], None)
     if not name: name = data.good.goods_name
     lang_local = localization[context.user_data["language"]]
+    caption = (lang_local["category"](data.good.good_category.__dict__['goods_categories_name_' + context.user_data["language"]]) + '\n' + 
+               lang_local['name'](name) + '\n' + 
+               lang_local['seller_quantity'](float(data.seller_quantity)) + '\n' + 
+               lang_local['pack_descript'](data.pack_descript) + '\n' +
+               lang_local['pack_quantity'](float(data.pack_quantity)) + '\n' + 
+               lang_local['minimal_quantity'](float(data.minimal_quantity)) + '\n' +
+               lang_local['seller_price'](float(data.seller_price)) + '\n' + 
+               lang_local['seller_sum'](float(data.seller_sum)) + '\n' + 
+               lang_local['offer_end_date'](data.offer_end_date) + '\n' +
+               lang_local['head_description'](data.head_description) + '\n' + 
+               lang_local['description'](data.description))
     if data.foto_video_file_name:
         try:
             await context.bot.send_document(
                 chat_id=update.effective_chat.id, 
-                caption=(lang_local["category"](data.good.good_category.__dict__['goods_categories_name_' + context.user_data["language"]]) + '\n' + 
-                        lang_local['name'](name) + '\n' + 
-                        lang_local['seller_quantity'](float(data.seller_quantity)) + '\n' + 
-                        lang_local['pack_descript'](data.pack_descript) + '\n' +
-                        lang_local['pack_quantity'](float(data.pack_quantity)) + '\n' + 
-                        lang_local['minimal_quantity'](float(data.minimal_quantity)) + '\n' +
-                        lang_local['seller_price'](float(data.seller_price)) + '\n' + 
-                        lang_local['seller_sum'](float(data.seller_sum)) + '\n' + 
-                        lang_local['offer_end_date'](data.offer_end_date) + '\n' +
-                        lang_local['head_description'](data.head_description) + '\n' + 
-                        lang_local['description'](data.description)),
+                caption=caption,
                 reply_markup=get_inline_updel(context.user_data['language'], data.id),
                 document=data.foto_video_file_name
             )
         except BadRequest:
             await context.bot.send_photo(
                 chat_id=update.effective_chat.id, 
-                caption=(lang_local["category"](data.good.good_category.__dict__['goods_categories_name_' + context.user_data["language"]]) + '\n' + 
-                        lang_local['name'](name) + '\n' + 
-                        lang_local['seller_quantity'](float(data.seller_quantity)) + '\n' + 
-                        lang_local['pack_descript'](data.pack_descript) + '\n' +
-                        lang_local['pack_quantity'](float(data.pack_quantity)) + '\n' + 
-                        lang_local['minimal_quantity'](float(data.minimal_quantity)) + '\n' +
-                        lang_local['seller_price'](float(data.seller_price)) + '\n' + 
-                        lang_local['seller_sum'](float(data.seller_sum)) + '\n' + 
-                        lang_local['offer_end_date'](data.offer_end_date) + '\n' +
-                        lang_local['head_description'](data.head_description) + '\n' + 
-                        lang_local['description'](data.description)),
+                caption=caption,
                 reply_markup=get_inline_updel(context.user_data['language'], data.id),
                 photo=data.foto_video_file_name
             )

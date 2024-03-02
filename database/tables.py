@@ -1,11 +1,13 @@
+from __future__ import annotations
+
 from sqlalchemy.orm import mapped_column, Mapped, relationship
-from sqlalchemy import BigInteger, String, ForeignKey, Integer, Numeric, Enum
+from sqlalchemy import BigInteger, String, ForeignKey, Integer, Numeric, Enum, Text
 from sqlalchemy.dialects.postgresql import BYTEA
 
 from datetime import datetime, date
 from typing import Literal
 
-from .base import Base
+from .base import Base, BaseSub
 
 
 Language = Literal['ru', 'uz', 'en']
@@ -28,7 +30,7 @@ class Fermer(Base):
     other_contact: Mapped[str | None] = mapped_column(String)
     rayting: Mapped[int | None]
     region_id: Mapped[int | None]
-    language: Mapped[Language] = mapped_column(Enum('ru', 'uz', 'en'))
+    language: Mapped[Language] = mapped_column(Enum('ru', 'uz', 'en', name='lang_enum'))
     
     offers: Mapped[list['Offer']] = relationship(back_populates='fermer')
 
@@ -61,9 +63,12 @@ class Offer(Base):
     region_id: Mapped[int | None]
     goods_id: Mapped[int | None] = mapped_column(Integer, ForeignKey('goods.id'))
     description: Mapped[str | None] = mapped_column(String(5000))
+    PictureId: Mapped[int | None] = mapped_column(Integer, ForeignKey('Pictures.Id'))
+    FilePath: Mapped[str | None] = mapped_column(Text)
     
     fermer: Mapped[Fermer] = relationship(back_populates='offers')
     good: Mapped['Good'] = relationship(back_populates='offers')
+    picture: Mapped['Picture'] = relationship(back_populates='offer')
     
 
 class Good(Base):
@@ -128,4 +133,14 @@ class Good_Category(Base):
     is_active: Mapped[bool | None]
     
     goods: Mapped[list[Good]] = relationship(back_populates='good_category')
+    
+
+class Picture(BaseSub):
+    __tablename__ = 'Pictures'
+    
+    Id: Mapped[int] = mapped_column(Integer, primary_key=True, nullable=False, autoincrement=True)
+    FilePath: Mapped[str | None] = mapped_column(Text())
+    Image: Mapped[bytes | None] = mapped_column(BYTEA)
+    
+    offer: Mapped[Offer] = relationship(back_populates='picture')
     

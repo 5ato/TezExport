@@ -4,7 +4,7 @@ from sqlalchemy.exc import PendingRollbackError
 from typing import Sequence
 
 from .service import Service
-from database import Offer, Fermer, Good, Good_Category, UnitTypes
+from database import Offer, Fermer, Good, Good_Category, UnitTypes, Picture
 
 
 class OfferService(Service):
@@ -38,8 +38,9 @@ class OfferService(Service):
         return self.session.execute(select(Offer).where(
             Offer.fermer_id==select(Fermer.id)\
             .where(Fermer.telegram_id==telegram_id).scalar_subquery()
-        ).join_from(Offer, Good, Offer.goods_id==Good.id).join_from(
-            Good, Good_Category, Good.goods_categories_id==Good_Category.id)).scalars().all()
+        ).join_from(Offer, Good, Offer.goods_id==Good.id)\
+         .join_from(Good, Good_Category, Good.goods_categories_id==Good_Category.id)\
+         .join_from(Offer, Picture, Offer.PictureId==Picture.Id)).scalars().all()
         
     def delete(self, id: int) -> None:
         self.session.execute(delete(Offer).where(Offer.id==id))

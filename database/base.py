@@ -5,7 +5,11 @@ from sqlalchemy.orm import (
 from sqlalchemy import create_engine, Engine, BigInteger
 
 
-class Base(DeclarativeBase):
+class BaseSub(DeclarativeBase):
+    pass
+
+
+class Base(BaseSub):
     __abstract__ = True
     
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)

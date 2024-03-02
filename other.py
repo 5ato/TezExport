@@ -11,14 +11,14 @@ from handlers.message import localization
 from datetime import date, timedelta
 import calendar
 import requests
-import io
 import os
 
 
 unit_type_message = {
-    1: lambda language, message: localization[language][message + '_' + 'head'],
-    2: lambda language, message: localization[language][message + '_' + 'litr'],
-    3: lambda language, message: localization[language][message + '_' + 'ton'],
+    4: lambda language, message: localization[language][message + '_' + 'head'],
+    3: lambda language, message: localization[language][message + '_' + 'pieces'],
+    1: lambda language, message: localization[language][message + '_' + 'ton'],
+    2: lambda language, message: localization[language][message + '_' + 'kg'],
 }
 
 
@@ -198,7 +198,9 @@ def get_inline_category(context: ContextTypes.DEFAULT_TYPE, category_service: Ca
     if not context.user_data.get('inline', None):
         context.user_data['inline'] = {}
         context.user_data['inline']['category'] = category_service.get_all_with_goods()
+    print(context.user_data['inline']['category'])
     for key, item in enumerate(context.user_data['inline']['category']):
+        print(item.__dict__)
         if count % per_row == 0: result.append([InlineKeyboardButton(text=item.__dict__['goods_categories_name_' + language], callback_data=str(key))])
         else: result[-1].append(InlineKeyboardButton(text=item.__dict__['goods_categories_name_' + language], callback_data=str(key)))
         count += 1
@@ -251,14 +253,17 @@ class FloatFilter(MessageFilter):
         return True
 
 
-async def save_media(data: File, telegram_id: str):
+async def save_media(data: File):
+    print(data)
+    print(data.file_path)
     name = data.file_path.split('/')[-1].split()[-1]
+    return name, requests.get(data.file_path).content
     print(name)
-    if not os.path.exists(f'C:/Users/tencc/Documents/media/{telegram_id}'):
-        os.makedirs(f'C:/Users/tencc/Documents/media/{telegram_id}')
-    if not os.path.exists(f'C:/Users/tencc/Documents/media/{telegram_id}/{data.file_id}'):
-        os.makedirs(f'C:/Users/tencc/Documents/media/{telegram_id}/{data.file_id}')
-    with open(f'C:/Users/tencc/Documents/media/{telegram_id}/{data.file_id}.{name}', 'wb') as file:
+    if not os.path.exists(f'C:/TezTelegramBot/media/{telegram_id}'):
+        os.makedirs(f'C:/TezTelegramBot/media/{telegram_id}')
+    if not os.path.exists(f'C:/TezTelegramBot/media/{telegram_id}/{data.file_id}'):
+        os.makedirs(f'C:/TezTelegramBot/media/{telegram_id}/{data.file_id}')
+    with open(f'C:/TezTelegramBot/media/{telegram_id}/{data.file_id}.{name}', 'wb') as file:
         file.write(requests.get(data.file_path).content)
         
 

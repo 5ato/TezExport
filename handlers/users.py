@@ -105,6 +105,7 @@ async def get_location(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
         text=localization[context.user_data['fermer']['language']]['reg_success'],
         reply_markup=ReplyKeyboardRemove(True),
     )
+    context.user_data['language'] = context.user_data['fermer']['language']
     await context.bot.send_message(
         chat_id=update.effective_chat.id, 
         text=localization[context.user_data['fermer']['language']]['home_menu'], 
