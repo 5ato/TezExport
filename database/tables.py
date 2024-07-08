@@ -5,12 +5,9 @@ from sqlalchemy import BigInteger, String, ForeignKey, Integer, Numeric, Enum, T
 from sqlalchemy.dialects.postgresql import BYTEA
 
 from datetime import datetime, date
-from typing import Literal
 
 from .base import Base, BaseSub
 
-
-Language = Literal['ru', 'uz', 'en']
 
 
 class Fermer(Base):
@@ -30,7 +27,7 @@ class Fermer(Base):
     other_contact: Mapped[str | None] = mapped_column(String)
     rayting: Mapped[int | None]
     region_id: Mapped[int | None]
-    language: Mapped[Language] = mapped_column(Enum('ru', 'uz', 'en', name='lang_enum'))
+    language: Mapped[str] = mapped_column(String(20))
     
     offers: Mapped[list['Offer']] = relationship(back_populates='fermer')
 
@@ -88,9 +85,9 @@ class Good(Base):
     tnved_code: Mapped[str | None] = mapped_column(String(15))
     is_hi_liquid: Mapped[bool | None]
     tnved_id: Mapped[int | None]
-    goods_name_ru: Mapped[str | None] = mapped_column(String(50))
-    goods_name_uz: Mapped[str | None] = mapped_column(String(50))
-    goods_name_en: Mapped[str | None] = mapped_column(String(50))
+    GoodsNameRu: Mapped[str | None] = mapped_column(String(50))
+    GoodsNameUz: Mapped[str | None] = mapped_column(String(50))
+    GoodsNameEng: Mapped[str | None] = mapped_column(String(50))
     
     unit_types: Mapped['UnitTypes'] = relationship(back_populates='goods')
     offers: Mapped[list[Offer]] = relationship(back_populates='good')
@@ -119,9 +116,9 @@ class Good_Category(Base):
     __tablename__ = 'goods_categories'
     
     goods_categories_name: Mapped[str] = mapped_column(String(50), nullable=False, unique=True)
-    goods_categories_name_ru: Mapped[str] = mapped_column(String(50), nullable=False, unique=True)
-    goods_categories_name_uz: Mapped[str] = mapped_column(String(50), nullable=False, unique=True)
-    goods_categories_name_en: Mapped[str] = mapped_column(String(50), nullable=False, unique=True)
+    GoodsCategoriesNameRu: Mapped[str] = mapped_column(String(50), nullable=False, unique=True)
+    GoodsCategoriesNameUz: Mapped[str] = mapped_column(String(50), nullable=False, unique=True)
+    GoodsCategoriesNameEng: Mapped[str] = mapped_column(String(50), nullable=False, unique=True)
     goods_code: Mapped[str | None] = mapped_column(String(10))
     is_restricted: Mapped[bool | None]
     inserted_by: Mapped[str | None] = mapped_column(String(50), default='TelegramBot')

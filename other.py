@@ -167,8 +167,8 @@ def get_inline_name_product(product: list[Good], context: ContextTypes.DEFAULT_T
     context.user_data['inline']['goods'] = product
     name = ''
     for key, item in enumerate(product):
-        if item.__dict__['goods_name_' + language]:
-            name = item.__dict__['goods_name_' + language]
+        if item.__dict__['GoodsName' + language]:
+            name = item.__dict__['GoodsName' + language]
         else:
             name = item.goods_name
         if count_one_time % one_time == 0:
@@ -201,8 +201,8 @@ def get_inline_category(context: ContextTypes.DEFAULT_TYPE, category_service: Ca
     print(context.user_data['inline']['category'])
     for key, item in enumerate(context.user_data['inline']['category']):
         print(item.__dict__)
-        if count % per_row == 0: result.append([InlineKeyboardButton(text=item.__dict__['goods_categories_name_' + language], callback_data=str(key))])
-        else: result[-1].append(InlineKeyboardButton(text=item.__dict__['goods_categories_name_' + language], callback_data=str(key)))
+        if count % per_row == 0: result.append([InlineKeyboardButton(text=item.__dict__['GoodsCategoriesName' + language], callback_data=str(key))])
+        else: result[-1].append(InlineKeyboardButton(text=item.__dict__['GoodsCategoriesName' + language], callback_data=str(key)))
         count += 1
     return InlineKeyboardMarkup(result)
 
@@ -293,7 +293,7 @@ def get_inline_updel(language: str, id: int) -> InlineKeyboardMarkup:
 def get_inline_language() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         [
-            [InlineKeyboardButton('Рус', callback_data='ru'), InlineKeyboardButton("O'z", callback_data='uz'), InlineKeyboardButton('Eng', callback_data='en')]
+            [InlineKeyboardButton('Рус', callback_data='Ru'), InlineKeyboardButton("O'z", callback_data='Uz'), InlineKeyboardButton('Eng', callback_data='Eng')]
         ]
     )
 

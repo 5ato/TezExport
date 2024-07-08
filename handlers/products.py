@@ -49,7 +49,7 @@ async def callback_no(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def callback_get_category(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     data = int(update.callback_query.data)
-    context.user_data['product']['category'] = context.user_data['inline']['category'][data].__dict__['goods_categories_name_' + context.user_data['language']]
+    context.user_data['product']['category'] = context.user_data['inline']['category'][data].__dict__['GoodsCategoriesName' + context.user_data['language']]
     context.user_data['product']['category_id'] = context.user_data['inline']['category'][data].id
     context.user_data['inline_buttons'] = get_inline_name_product(context.user_data['inline']['category'][data].goods, context, context.user_data['language'], 3, 9)
     context.user_data['name_index'] = 0
@@ -394,7 +394,7 @@ async def callback_get_product(update: Update, context: ContextTypes.DEFAULT_TYP
     name = data.good.__dict__.get('goods_name_' + context.user_data["language"], None)
     if not name: name = data.good.goods_name
     lang_local = localization[context.user_data["language"]]
-    caption = (lang_local["category"](data.good.good_category.__dict__['goods_categories_name_' + context.user_data["language"]]) + '\n' + 
+    caption = (lang_local["category"](data.good.good_category.__dict__['GoodsCategoriesName' + context.user_data["language"]]) + '\n' + 
                lang_local['name'](name) + '\n' + 
                lang_local['seller_quantity'](float(data.seller_quantity)) + '\n' + 
                lang_local['pack_descript'](data.pack_descript) + '\n' +

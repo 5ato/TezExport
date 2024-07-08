@@ -1,5 +1,5 @@
 localization = {
-    'ru': {
+    'Ru': {
         'check_user_true': 'Как я вижу, вы уже зарегистрированы, чем могу помочь?',
         'name_typing': 'Как вас зовут?\n\n<b><em>Фамилия, имя и отчество<u>(Необязательно)</u> введите через пробел</em></b>',
         'contact': 'Отправить контакт',
@@ -92,7 +92,7 @@ localization = {
         'back': 'Назад в меню',
         'delete_success': '<b>Вы успешно удалили товар</b>\n\nЧем могу помочь Вам?',
     },
-    'uz': {
+    'Uz': {
         'check_user_true': "Men siz allaqachon ro'yxatdan o'tgansiz, sizga qanday yordam bera olaman?",
         'name_typing': "Ismingiz nima?\n\n<b><em>Familiyasi, ismi va otasining ismi<u>(ixtiyoriy)</u> bo'sh joy bilan ajratilgan holda kiriting</em></b>",
         'contact': 'Kontaktni yuboring',
@@ -185,7 +185,7 @@ localization = {
         'back': 'Menyuga qaytish',
         'delete_success': "<b>Siz mahsulotni muvaffaqiyatli o'chirib tashladingiz</b>\n\nSizga qanday yordam bera olaman?",
     },
-    'en': {
+    'Eng': {
         'check_user_true': 'I see you are already registered, how can I help you?',
         'name_typing': 'What is your name?\n\n<b><em>Surname, first name and patronymic<u>(optional) enter separated by a space</u></em></b>',
         'contact': 'Send contact',
